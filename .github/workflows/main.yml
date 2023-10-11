@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Replace with your default branch if not 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Use your desired Node.js version
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test  # Replace with your test command if different
+
+    - name: Run GitLeaks Secret Scanning  # Added this step
+      run: |
+        wget https://github.com/zricethezav/gitleaks/releases/download/v7.6.1/gitleaks-linux-amd64
+        chmod +x gitleaks-linux-amd64
+        ./gitleaks-linux-amd64 --path=. --verbose
+
+  deploy:
+    needs: build  # This ensures that the 'deploy' job only runs if 'build' is successful
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.12  # This is a popular GitHub Action for Heroku deployments
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+        heroku_email: ${{secrets.HEROKU_EMAIL}}

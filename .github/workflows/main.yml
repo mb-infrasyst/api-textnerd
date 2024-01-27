@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'  # Use your desired Node.js version
+        node-version: '20'  # Use your desired Node.js version
 
     - name: Install Dependencies
       run: npm install
@@ -33,6 +33,7 @@ jobs:
   deploy:
     needs: build  # This ensures that the 'deploy' job only runs if 'build' is successful
     runs-on: ubuntu-latest
+    if: ${{ success() }}  # Adds an additional check to run deployment only if the build job is successful
 
     steps:
     - name: Checkout Code

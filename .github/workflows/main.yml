@@ -30,6 +30,14 @@ jobs:
         chmod +x gitleaks-linux-amd64
         ./gitleaks-linux-amd64 --path=. --verbose
 
+    - name: Run GitGuardian Secret Scan
+      run: |
+        pip install ggshield
+        ggshield secret scan ci
+      env:
+        GITGUARDIAN_API_KEY: ${{secrets.GITGUARDIAN_API_KEY}}
+        
+
   deploy:
     needs: build  # This ensures that the 'deploy' job only runs if 'build' is successful
     runs-on: ubuntu-latest
